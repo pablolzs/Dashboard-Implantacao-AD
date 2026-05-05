@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard – Implantação AD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2f4f8;
+    --bg-grad-1: #eef1f6;
+    --bg-grad-2: #f7f8fb;
+    --surface: #ffffff;
+    --surface-soft: #f8f9fc;
+    --surface-alt: #f1f3f8;
+    --border: #dde1e8;
+    --border-soft: #e9ecf2;
+    --accent: #0f62fe;
+    --accent-soft: #d0e2ff;
+    --green: #24a148;
+    --green-soft: #defbe6;
+    --yellow: #f1c21b;
+    --yellow-soft: #fcf4d6;
+    --red: #da1e28;
+    --red-soft: #ffd7d9;
+    --neutral: #8d8d8d;
+    --neutral-soft: #e0e0e0;
+    --text: #161616;
+    --text-muted: #525252;
+    --text-dim: #a8a8a8;
+    --radius: 8px;
+    --radius-sm: 4px;
+    --shadow-sm: 0 1px 2px rgba(15, 22, 36, 0.04);
+    --shadow-md: 0 1px 3px rgba(15, 22, 36, 0.06), 0 4px 12px rgba(15, 22, 36, 0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 60% at 20% -10%, rgba(15, 98, 254, 0.06), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 0%, rgba(36, 161, 72, 0.05), transparent 60%),
+      linear-gradient(180deg, var(--bg-grad-2) 0%, var(--bg) 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, var(--accent) 0%, var(--accent) 4px, transparent 4px),
+      radial-gradient(ellipse 40% 100% at 90% 50%, rgba(15, 98, 254, 0.04), transparent);
+    pointer-events: none;
+  }
+  .header-inner { position: relative; max-width: 1400px; margin: 0 auto; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 2px;
+    padding: 4px 10px;
+    margin-bottom: 14px;
+  }
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  h1 {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 600;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+    color: var(--text);
+  }
+  h1 span { color: var(--accent); font-weight: 700; }
+  .header-meta {
+    margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-meta span::before { content: '/ '; color: var(--text-dim); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 40px 0 18px;
+  }
+  .section-label .pill {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 6px 14px;
+    border-radius: 2px;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label .pill::before {
+    content: '';
+    width: 4px; height: 14px;
+    background: rgba(255,255,255,.5);
+  }
+  .section-label .pill.cemig   { background: #1c3a6e; }
+  .section-label .pill.cnh     { background: #6929c4; }
+  .section-label .pill.demais  { background: #0e6027; }
+  .section-label hr {
+    flex: 1;
+    border: none;
+    border-top: 1px dashed var(--border);
+  }
+  .section-label .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 28px 0 0;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: all .2s ease;
+    box-shadow: var(--shadow-sm);
+  }
+  .kpi-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
+  }
+  .kpi-card.green::before  { background: var(--green); }
+  .kpi-card.yellow::before { background: var(--yellow); }
+  .kpi-card.red::before    { background: var(--red); }
+  .kpi-card.blue::before   { background: var(--accent); }
+  .kpi-card.neutral::before{ background: var(--neutral); }
+
+  .kpi-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .kpi-text { flex: 1; min-width: 0; }
+  .kpi-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -.02em;
+  }
+  .kpi-value.mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+  }
+  .kpi-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* ── DONUT CHART ── */
+  .donut {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .donut svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .donut .donut-bg  { fill: none; }
+  .donut .donut-fg  {
+    fill: none;
+    transition: stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);
+    stroke-linecap: round;
+  }
+  .donut-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -.02em;
+  }
+
+  /* large donut for KPI */
+  .donut-lg { width: 72px; height: 72px; }
+  .donut-lg .donut-label { font-size: 13px; font-weight: 600; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-sm);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead tr {
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 13px 18px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: middle;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .15s ease; }
+  tbody tr:hover { background: var(--surface-soft); }
+
+  .setor-name {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  /* STATUS BADGE */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .status.done    { background: var(--green-soft); color: var(--green); }
+  .status.partial { background: var(--yellow-soft); color: #8a6d00; }
+  .status.pending { background: var(--red-soft); color: var(--red); }
+  .status.obs     { background: var(--accent-soft); color: var(--accent); }
+  .status::before { content: '●'; font-size: 8px; }
+
+  /* PROGRESS DONUT CELL */
+  .prog-cell {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .prog-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .prog-fraction {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .prog-pct-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* OBSERVATIONS */
+  .obs-cell {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    max-width: 360px;
+  }
+  .obs-cell strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .obs-cell .tag {
+    display: inline-block;
+    background: var(--yellow-soft);
+    color: #8a6d00;
+    border-radius: 2px;
+    padding: 1px 7px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .obs-cell .tag.info {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /* DATES */
+  .dates-cell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    white-space: nowrap;
+  }
+  .dates-cell b {
+    font-weight: 500;
+    color: var(--text-dim);
+    display: block;
+    font-size: 9.5px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .dates-cell b:first-child { margin-top: 0; }
+  .dates-cell .dim { color: var(--text-dim); font-style: italic; }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 24px 0 0;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    box-shadow: var(--shadow-sm);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* FOOTER */
+  footer {
+    margin-top: 48px;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  /* SCROLL ANIMATION */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .kpi-card { animation: fadeUp .5s ease both; }
+  .kpi-card:nth-child(1) { animation-delay: .05s; }
+  .kpi-card:nth-child(2) { animation-delay: .10s; }
+  .kpi-card:nth-child(3) { animation-delay: .15s; }
+  .kpi-card:nth-child(4) { animation-delay: .20s; }
+  .kpi-card:nth-child(5) { animation-delay: .25s; }
+  .kpi-card:nth-child(6) { animation-delay: .30s; }
+</style>
+</head>
+<body>
+
+<header>
+<div class="header-inner">
+<div class="badge">Projeto · Active Directory</div>
+<h1>Dashboard de <span>Implantação AD</span></h1>
+<div class="header-meta">
+<span>Última atualização: Maio 2026</span>
+<span>Todas as unidades</span>
+<span>31 setores monitorados</span>
+</div>
+</div>
+</header>
+
+<div class="container">
+
+  <!-- KPIs globais -->
+<div class="kpi-grid">
+<div class="kpi-card blue">
+<div class="kpi-flex">
+<div class="kpi-text">
+<div class="kpi-label">Total de Setores</div>
+<div class="kpi-value">31</div>
+<div class="kpi-sub">Todas as unidades</div>
+</div>
+</div>
+</div>
+<div class="kpi-card green">
+<div class="kpi-flex">
+<div class="kpi-text">
+<div class="kpi-label">Finalizados</div>
+<div class="kpi-value" id="kpi-done">—</div>
+<div class="kpi-sub">100% concluído</div>
+</div>
+<div class="donut donut-lg" data-pct="0" data-color="green" id="donut-done"></div>
+</div>
+</div>
+<div class="kpi-card yellow">
+<div class="kpi-flex">
+<div class="kpi-text">
+<div class="kpi-label">Parciais</div>
+<div class="kpi-value" id="kpi-partial">—</div>
+<div class="kpi-sub">Com pendências</div>
+</div>
+<div class="donut donut-lg" data-pct="0" data-color="yellow" id="donut-partial"></div>
+</div>
+</div>
+<div class="kpi-card red">
+<div class="kpi-flex">
+<div class="kpi-text">
+<div class="kpi-label">Pendentes</div>
+<div class="kpi-value" id="kpi-pending">—</div>
+<div class="kpi-sub">Não iniciados</div>
+</div>
+<div class="donut donut-lg" data-pct="0" data-color="red" id="donut-pending"></div>
+</div>
+</div>
+<div class="kpi-card green">
+<div class="kpi-flex">
+<div class="kpi-text">
+<div class="kpi-label">Pessoas Finalizadas</div>
+<div class="kpi-value mono">89 <span style="font-size:16px;font-weight:400;color:var(--text-muted)">/ 250</span></div>
+<div class="kpi-sub">Usuários configurados</div>
+</div>
+<div class="donut donut-lg" id="donut-people"></div>
+</div>
+</div>
+<div class="kpi-card blue">
+<div class="kpi-flex">
+<div class="kpi-text">
+<div class="kpi-label">% Geral de Progresso</div>
+<div class="kpi-value mono" id="kpi-pct">—</div>
+<div class="kpi-sub">Calculado por setores</div>
+</div>
+<div class="donut donut-lg" data-pct="0" data-color="blue" id="donut-pct"></div>
+</div>
+</div>
+</div>
+
+  <!-- ══════════════════════════════════════════
+       MATRIZ
+  ══════════════════════════════════════════ -->
+<div class="section-label">
+<span class="pill">Matriz</span>
+<hr>
+<span class="count">15 setores</span>
+</div>
+
+  <div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Setor</th>
+<th>Status</th>
+<th>Progresso</th>
+<th>Datas</th>
+<th>Observações / Pendências</th>
+</tr>
+</thead>
+<tbody>
+
+        <tr>
+<td><span class="setor-name">Seminovos</span></td>
+<td><span class="status done">Finalizado</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="5" data-total="5" data-color="green"></div>
+<div class="prog-info">
+<span class="prog-fraction">5 / 5</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>23/03/26 · 08–09h
+<b>Implantação</b>23/03/26 · 09–12h
+<b>Suporte</b>24–25/03/26
+<b>Revisão</b>26/03/26
+</td>
+<td class="obs-cell">Todos os 5 usuários configurados com sucesso.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Financeiro</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="9" data-total="10" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">9 / 10</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>27/03/26 · 09–10h
+<b>Implantação</b>27/03/26 · 10–18h
+<b>Suporte</b>30–31/03/26
+<b>Revisão</b>01/04/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span>Máquina do ex-colaborador <strong>Matheus</strong> aguarda configuração.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Contabilidade</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="5" data-total="7" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">5 / 7</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>27/03/26 · 09–10h
+<b>Implantação</b>27/03/26 · 10–18h
+<b>Suporte</b>30–31/03/26
+<b>Revisão</b>01/04/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span><strong>Juliana</strong> e <strong>Lucas Marino</strong> utilizam computador pessoal — dependem de acesso ao equipamento para concluir configuração.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Fiscal</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="12" data-total="13" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">12 / 13</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>01/04/26 · 09–10h
+<b>Implantação</b>01/04/26 · 10–18h
+<b>Suporte</b>02–03/04/26
+<b>Revisão</b>06/04/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span><strong>Guilherme Veloso</strong> agendado para dia 12.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Faturamento</span></td>
+<td><span class="status done">Finalizado</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="9" data-total="9" data-color="green"></div>
+<div class="prog-info">
+<span class="prog-fraction">9 / 9</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>07/04/26 · 09–10h
+<b>Implantação</b>07/04/26 · 10–18h
+<b>Suporte</b>08–09/04/26
+<b>Revisão</b>10/04/26
+</td>
+<td class="obs-cell">Todos os 9 usuários configurados com sucesso.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Compras</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="9" data-total="10" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">9 / 10</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>13/04/26 · 09–10h
+<b>Implantação</b>13/04/26 · 10–18h
+<b>Suporte</b>14–15/04/26
+<b>Revisão</b>16/04/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span><strong>Rayner</strong> estava de férias durante a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Frotas</span></td>
+<td><span class="status done">Finalizado</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="6" data-total="6" data-color="green"></div>
+<div class="prog-info">
+<span class="prog-fraction">6 / 6</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>20/04/26 · 09–10h
+<b>Implantação</b>20/04/26 · 10–18h
+<b>Suporte</b>22–23/04/26
+<b>Revisão</b>24/04/26
+</td>
+<td class="obs-cell">Todos os 6 usuários configurados com sucesso.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">DP</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>27/04/26 · 09–10h
+<b>Implantação</b>27/04/26 · 10–18h
+<b>Suporte</b>28–29/04/26
+<b>Revisão</b>30/04/26
+</td>
+<td class="obs-cell">Setor ainda não iniciou a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">RH</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="4" data-total="6" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">4 / 6</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>04/05/26 · 09–10h
+<b>Implantação</b>04/05/26 · 10–18h
+<b>Suporte</b>05–06/05/26
+<b>Revisão</b>07/05/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span><strong>Nelia</strong> não estava no setor e  <strong>Isabela</strong> estava de férias durante a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">SGI</span></td>
+<td><span class="status done">Finalizado</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="5" data-total="5" data-color="green"></div>
+<div class="prog-info">
+<span class="prog-fraction">5 / 5</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>08/05/26 · 09–10h
+<b>Implantação</b>08/05/26 · 10–18h
+<b>Suporte</b>11–12/05/26
+<b>Revisão</b>13/05/26
+</td>
+<td class="obs-cell">Todos os 5 usuários configurados com sucesso.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Jurídico</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>14/05/26 · 09–10h
+<b>Implantação</b>14/05/26 · 10–18h
+<b>Suporte</b>15–18/05/26
+<b>Revisão</b>19/05/26
+</td>
+<td class="obs-cell">Setor ainda não iniciou a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Locação</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="5" data-total="9" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">5 / 9</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>19/05/26 · 09–10h
+<b>Implantação</b>19/05/26 · 10–18h
+<b>Suporte</b>20–21/05/26
+<b>Revisão</b>22/05/26
+</td>
+<td class="obs-cell">4 usuários aguardam configuração.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Manutenção</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="5" data-total="9" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">5 / 9</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>25/05/26 · 09–10h
+<b>Implantação</b>25/05/26 · 10–18h
+<b>Suporte</b>26–27/05/26
+<b>Revisão</b>28/05/26
+</td>
+<td class="obs-cell">4 pessoas pendentes de 9 mapeadas.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Comercial</span></td>
+<td><span class="status done">Finalizado</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="5" data-total="5" data-color="green"></div>
+<div class="prog-info">
+<span class="prog-fraction">5 / 5</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>01/06/26 · 09–10h
+<b>Implantação</b>01/06/26 · 10–18h
+<b>Suporte</b>02–03/06/26
+<b>Revisão</b>04/06/26
+</td>
+<td class="obs-cell">Todos os 5 usuários configurados com sucesso.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Triasa</span></td>
+<td><span class="status obs">Observação</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="blue"></div>
+<div class="prog-info">
+<span class="prog-fraction">—</span>
+<span class="prog-pct-text">em análise</span>
+</div>
+</div>
+</td>
+<td class="dates-cell"><span class="dim">Não agendado</span></td>
+<td class="obs-cell"><span class="tag info">Em análise</span>Unidade <strong>Triasa</strong> não consta no cronograma. Ainda não foi definido se será incluída no escopo do AD. Aguarda decisão da gestão.</td>
+</tr>
+
+      </tbody>
+</table>
+</div>
+
+  <!-- ══════════════════════════════════════════
+       CONTAGEM – CEMIG
+  ══════════════════════════════════════════ -->
+<div class="section-label">
+<span class="pill cemig">Contagem – CEMIG</span>
+<hr>
+<span class="count">9 setores</span>
+</div>
+
+  <div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Setor</th>
+<th>Status</th>
+<th>Progresso</th>
+<th>Datas</th>
+<th>Observações / Pendências</th>
+</tr>
+</thead>
+<tbody>
+
+        <tr>
+<td><span class="setor-name">SGI</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="1" data-total="3" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">1 / 3</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>08/06/26
+<b>Implantação</b>08/06/26
+<b>Suporte</b>09/06/26
+<b>Revisão</b>10/06/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span>2 usuários aguardam configuração.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">RH</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>11/06/26
+<b>Implantação</b>11/06/26
+<b>Suporte</b>12/06/26
+<b>Revisão</b>15/06/26
+</td>
+<td class="obs-cell">Setor ainda não iniciou a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Recebimento</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>15/06/26
+<b>Implantação</b>15/06/26
+<b>Suporte</b>16/06/26
+<b>Revisão</b>17/06/26
+</td>
+<td class="obs-cell">Setor ainda não iniciou a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Logística</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="5" data-total="17" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">5 / 17</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>18/06/26
+<b>Implantação</b>18/06/26
+<b>Suporte</b>19/06/26
+<b>Revisão</b>22/06/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span>12 usuários aguardam configuração.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Inventário</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>22/06/26
+<b>Implantação</b>22/06/26
+<b>Suporte</b>23/06/26
+<b>Revisão</b>24/06/26
+</td>
+<td class="obs-cell">Setor ainda não iniciou a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Financeiro</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="1" data-total="2" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">1 / 2</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>25/06/26
+<b>Implantação</b>25/06/26
+<b>Suporte</b>26/06/26
+<b>Revisão</b>29/06/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span>1 usuário aguarda configuração.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Expedição</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="1" data-total="3" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">1 / 3</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>29/06/26
+<b>Implantação</b>29/06/26
+<b>Suporte</b>30/06/26
+<b>Revisão</b>01/07/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span>2 usuários aguardam configuração.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">DP</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>02/07/26
+<b>Implantação</b>02/07/26
+<b>Suporte</b>03/07/26
+<b>Revisão</b>06/07/26
+</td>
+<td class="obs-cell">Setor ainda não iniciou a implantação.</td>
+</tr>
+
+        <tr>
+<td><span class="setor-name">Comercial</span></td>
+<td><span class="status partial">Parcial</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="2" data-total="3" data-color="yellow"></div>
+<div class="prog-info">
+<span class="prog-fraction">2 / 3</span>
+<span class="prog-pct-text">pessoas</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>06/07/26
+<b>Implantação</b>06/07/26
+<b>Suporte</b>07/07/26
+<b>Revisão</b>08/07/26
+</td>
+<td class="obs-cell"><span class="tag">Pendente</span>1 usuário aguarda configuração.</td>
+</tr>
+
+      </tbody>
+</table>
+</div>
+
+  <!-- ══════════════════════════════════════════
+       CONTAGEM – CNH
+  ══════════════════════════════════════════ -->
+<div class="section-label">
+<span class="pill cnh">Contagem – CNH</span>
+<hr>
+<span class="count">2 setores</span>
+</div>
+
+  <div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Setor</th>
+<th>Status</th>
+<th>Progresso</th>
+<th>Datas</th>
+<th>Observações / Pendências</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="setor-name">Inventário</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>09/07/26
+<b>Implantação</b>09/07/26
+<b>Suporte</b>10/07/26
+<b>Revisão</b>13/07/26
+</td>
+<td class="obs-cell">Nenhuma pessoa finalizada. Implantação não iniciada.</td>
+</tr>
+<tr>
+<td><span class="setor-name">Operação</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>14/07/26
+<b>Implantação</b>14/07/26
+<b>Suporte</b>15/07/26
+<b>Revisão</b>16/07/26
+</td>
+<td class="obs-cell">Nenhuma pessoa finalizada. Implantação não iniciada.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+  <!-- ══════════════════════════════════════════
+       DEMAIS UNIDADES
+  ══════════════════════════════════════════ -->
+<div class="section-label">
+<span class="pill demais">Demais Unidades</span>
+<hr>
+<span class="count">5 unidades</span>
+</div>
+
+  <div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Unidade / Setor</th>
+<th>Status</th>
+<th>Progresso</th>
+<th>Datas</th>
+<th>Observações / Pendências</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="setor-name">Uberlândia</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>17/07/26
+<b>Implantação</b>17/07/26
+<b>Suporte</b>20/07/26
+<b>Revisão</b>21/07/26
+</td>
+<td class="obs-cell">Implantação ainda não iniciada.</td>
+</tr>
+<tr>
+<td><span class="setor-name">Montes Claros</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>17/07/26
+<b>Implantação</b>17/07/26
+<b>Suporte</b>20/07/26
+<b>Revisão</b>21/07/26
+</td>
+<td class="obs-cell">Implantação ainda não iniciada.</td>
+</tr>
+<tr>
+<td><span class="setor-name">Juatuba</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>17/07/26
+<b>Implantação</b>17/07/26
+<b>Suporte</b>20/07/26
+<b>Revisão</b>21/07/26
+</td>
+<td class="obs-cell">Implantação ainda não iniciada.</td>
+</tr>
+<tr>
+<td><span class="setor-name">Pedreira</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>22/07/26
+<b>Implantação</b>22/07/26
+<b>Suporte</b>23/07/26
+<b>Revisão</b>24/07/26
+</td>
+<td class="obs-cell">Implantação ainda não iniciada.</td>
+</tr>
+<tr>
+<td><span class="setor-name">Rio de Janeiro</span></td>
+<td><span class="status pending">Pendente</span></td>
+<td>
+<div class="prog-cell">
+<div class="donut" data-done="0" data-total="0" data-color="red"></div>
+<div class="prog-info">
+<span class="prog-fraction">0 / —</span>
+<span class="prog-pct-text">não iniciado</span>
+</div>
+</div>
+</td>
+<td class="dates-cell">
+<b>Alinhamento</b>27/07/26
+<b>Implantação</b>27/07/26
+<b>Suporte</b>28–29/07/26
+<b>Revisão</b>30/07/26
+</td>
+<td class="obs-cell">Implantação ainda não iniciada.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+  <!-- Legend -->
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Finalizado · 100% concluído</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div> Parcial · com pendências</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Pendente · não iniciado</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Em observação / análise</div>
+</div>
+
+</div><!-- /container -->
+
+<footer>
+<div class="container">
+    Dashboard Implantação AD · Gerado em Maio/2026 · Dados consolidados por unidade
+</div>
+</footer>
+
+<script>
+  // ── DONUT CHART RENDERER ────────────────────────────────
+  const COLORS = {
+    green:  { fg: '#24a148', bg: '#defbe6' },
+    yellow: { fg: '#f1c21b', bg: '#fcf4d6' },
+    red:    { fg: '#da1e28', bg: '#ffd7d9' },
+    blue:   { fg: '#0f62fe', bg: '#d0e2ff' },
+    neutral:{ fg: '#8d8d8d', bg: '#e0e0e0' }
+  };
+
+  function renderDonut(el, pct, color, opts = {}) {
+    const radius = 22;
+    const stroke = 5;
+    const circumference = 2 * Math.PI * radius;
+    const dashOffset = circumference * (1 - pct / 100);
+    const colors = COLORS[color] || COLORS.blue;
+    const showLabel = opts.showLabel !== false;
+    const labelText = opts.labelText !== undefined ? opts.labelText : `${Math.round(pct)}%`;
+
+    // Special case: empty donut (no data)
+    if (pct === 0 && opts.empty) {
+      el.innerHTML = `
+        <svg viewBox="0 0 56 56">
+          <circle class="donut-bg" cx="28" cy="28" r="${radius}" stroke="${colors.bg}" stroke-width="${stroke}"/>
+          <circle cx="28" cy="28" r="${radius}" fill="none" stroke="${colors.fg}" stroke-width="${stroke}" stroke-dasharray="2 4" opacity="0.6"/>
+        </svg>
+        ${showLabel ? `<div class="donut-label" style="color:${colors.fg}">—</div>` : ''}
+      `;
+      return;
+    }
+
+    el.innerHTML = `
+      <svg viewBox="0 0 56 56">
+        <circle class="donut-bg" cx="28" cy="28" r="${radius}" stroke="${colors.bg}" stroke-width="${stroke}"/>
+        <circle class="donut-fg" cx="28" cy="28" r="${radius}"
+                stroke="${colors.fg}" stroke-width="${stroke}"
+                stroke-dasharray="${circumference}"
+                stroke-dashoffset="${circumference}"/>
+      </svg>
+      ${showLabel ? `<div class="donut-label">${labelText}</div>` : ''}
+    `;
+
+    // Animate fill
+    requestAnimationFrame(() => {
+      const fg = el.querySelector('.donut-fg');
+      if (fg) fg.style.strokeDashoffset = dashOffset;
+    });
+  }
+
+  // ── Render row donuts ────────────────────────────────
+  document.querySelectorAll('.donut[data-done]').forEach(el => {
+    const done = parseInt(el.dataset.done, 10);
+    const total = parseInt(el.dataset.total, 10);
+    const color = el.dataset.color || 'blue';
+    if (total === 0) {
+      renderDonut(el, 0, color, { empty: true, showLabel: true });
+    } else {
+      const pct = (done / total) * 100;
+      renderDonut(el, pct, color);
+    }
+  });
+
+  // ── Compute KPIs ────────────────────────────────────
+  // [done, total]
+  const rows = [
+    // Matriz (excluindo Triasa)
+    [5,5],[9,10],[5,7],[12,13],[9,9],[9,10],[6,6],[0,0],[4,6],[5,5],[0,0],[5,9],[5,9],[5,5],
+    // Cemig
+    [1,3],[0,0],[0,0],[5,17],[0,0],[1,2],[1,3],[0,0],[2,3],
+    // CNH
+    [0,0],[0,0],
+    // Demais
+    [0,0],[0,0],[0,0],[0,0],[0,0]
+  ];
+
+  const statuses = [
+    // Matriz (14, sem Triasa)
+    'done','partial','partial','partial','done','partial','done','pending','partial','done','pending','partial','partial','done',
+    // Cemig (9)
+    'partial','pending','pending','partial','pending','partial','partial','pending','partial',
+    // CNH (2)
+    'pending','pending',
+    // Demais (5)
+    'pending','pending','pending','pending','pending'
+  ];
+
+  // Total de setores monitoráveis (excluindo Triasa que está em análise)
+  const totalSetores = statuses.length; // 30
+
+  let totalDone = 0, totalPartial = 0, totalPending = 0;
+  statuses.forEach(s => {
+    if (s === 'done') totalDone++;
+    else if (s === 'partial') totalPartial++;
+    else if (s === 'pending') totalPending++;
+  });
+
+  // % geral por setores: cada setor contribui com seu % de conclusão.
+  // Setores sem total mapeado (pendentes 0/0) contam como 0%.
+  // Média ponderada pelo número de setores.
+  let sumPct = 0;
+  rows.forEach(([d, t]) => {
+    sumPct += (t > 0) ? (d / t) * 100 : 0;
+  });
+  const pctGeral = Math.round(sumPct / totalSetores);
+
+  // Inject KPI values
+  document.getElementById('kpi-done').textContent    = totalDone;
+  document.getElementById('kpi-partial').textContent = totalPartial;
+  document.getElementById('kpi-pending').textContent = totalPending;
+  document.getElementById('kpi-pct').textContent     = pctGeral + '%';
+
+  // Render KPI donuts
+  renderDonut(
+    document.getElementById('donut-done'),
+    (totalDone / totalSetores) * 100,
+    'green',
+    { labelText: totalDone }
+  );
+  renderDonut(
+    document.getElementById('donut-partial'),
+    (totalPartial / totalSetores) * 100,
+    'yellow',
+    { labelText: totalPartial }
+  );
+  renderDonut(
+    document.getElementById('donut-pending'),
+    (totalPending / totalSetores) * 100,
+    'red',
+    { labelText: totalPending }
+  );
+  renderDonut(
+    document.getElementById('donut-pct'),
+    pctGeral,
+    'blue',
+    { labelText: pctGeral + '%' }
+  );
+
+  // Pessoas finalizadas: levantamento por setor
+  // Matriz: Seminovos(5) + Financeiro(9) + Contabilidade(5) + Fiscal(12) +
+  //         Faturamento(9) + Compras(9) + Frotas(6) + DP(0) + RH(4) +
+  //         SGI(5) + Jurídico(0) + Locação(5) + Manutenção(5) + Comercial(5) = 79
+  // CEMIG:  SGI(1) + RH(0) + Recebimento(0) + Logística(5) + Inventário(0) +
+  //         Financeiro(1) + Expedição(1) + DP(0) + Comercial(2) = 10
+  // CNH + Demais: 0
+  // Total levantado: 89 | Meta: 250
+  const peopleDone  = 89;
+  const peopleTotal = 250;
+  const peoplePct   = (peopleDone / peopleTotal) * 100;
+  renderDonut(
+    document.getElementById('donut-people'),
+    peoplePct,
+    'green',
+    { labelText: Math.round(peoplePct) + '%' }
+  );
+</script>
+
+</body>
+</html>
